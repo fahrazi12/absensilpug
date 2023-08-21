@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>List Batch</title>
+    <div th:replace="header :: cssHeader"></div>
+</head>
+<body>
+  <header th:insert="header :: navbarHeader"></header>
+</div>
+
+<div class="parent mx-3">
+<div th:switch="${jadwalList}">
+  <h2 th:case="null">Jadwal List Kosong</h2>
+  <div th:case="*">
+    <h2>Batch <span th:text="${dateBatch.batchKe}"></span></h2>
+    <h4><span th:text="${dateBatch.tanggalMulai}"></span> - <span th:text="${dateBatch.tanggalAkhir}"></span></h4>
+    <button sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-danger btn-sm mb-2"
+            data-bs-toggle="modal" data-bs-target="#modalDelete">Hapus Batch</button>
+    <br>
+    <!-- Modal -->
+    <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalDeleteTitle">Hapus Batch</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Apakah anda yakin untuk hapus jadwal?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <a th:href="@{/admin/list_batch/delete/{batchId}(batchId=${batch})}" class="btn btn-danger">Hapus</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Button trigger modal -->
+    <a th:href="@{/admin/list_batch/peserta/batch/{batchId}(batchId=${batchId})}" class="btn btn-secondary btn-sm mb-2">List Peserta Batch</a>
+    <div th:switch="${isReported}">
+      <div th:case="true">
+        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalTwo">
+          View Final Report
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modalTwo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modalTwoLabel">Final Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <h1>Final Report Batch <span th:text="${dateBatch.batchKe}"></span></h1>
+                <h2>Di Generate pada: <span th:text="${tanggal}"></span></h2>
+                <a th:href="@{/admin/delete/report/{batchId}(batchId=${batchId})}" class="btn btn-danger btn-sm">Hapus Final Report</a>
+                <table class="table table-striped">
+                  <thead>
+                  <tr>
+                    <th scope="col">Nama</th>
+                    <th scope="col">NPM</th>
+                    <th scope="col">Kursus</th>
+                    <th scope="col">Jumlah Hadir</th>
+                    <th scope="col">Jumlah Tidak Hadir</th>
+                    <th scope="col">Status Absensi</th>
+                    <th scope="col">Batch</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="report : ${reportList}">
+                    <td th:text="${report.peserta.nama}"></td>
+                    <td th:text="${report.peserta.npm}"></td>
+                    <td th:text="${report.peserta.kursus}"></td>
+                    <td th:text="${report.jumlahHadir}"></td>
+                    <td th:text="${report.jumlahTidakHadir}"></td>
+                    <td th:text="${report.statusKehadiran} ? 'BAIK' : 'TIDAK BAIK'"></td>
+                    <td th:text="${report.batchKe}"></td>
+                  </tr>
+                  </tbody>
+                </table>
+
+                <table class="table table-striped">
+                  <thead>
+                  <tr>
+                    <th scope="col">Nama</th>
+                    <th scope="col">Jumlah Jaga</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="staff : ${staffList}">
+                    <td th:if="${staff.jumlahJaga > 0}" th:text="${staff.staff.nama}"></td>
+                    <td th:if="${staff.jumlahJaga > 0}" th:text="${staff.jumlahJaga}"></td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+
+      <div th:case="false">
+        <button sec:authorize="hasRole('ROLE_ADMIN')" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          Generate Final Report
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Generate Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form action="#" method="post" th:action="@{/admin/report/{batchId}(batchId=${batch})}">
+                <div class="modal-body">
+                  Generate Final Report untuk batch <span th:text="${dateBatch.batchKe}"></span>?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Generate Report</button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="accordion w-50 my-2" id="accordionExample">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            List Jadwal
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+            <table class="table table-striped px-4 ">
+              <thead>
+              <tr>
+                <th scope="col">Jadwal ID</th>
+                <th scope="col">List<br>Peserta</th>
+                <th scope="col">Message</th>
+                <th scope="col">Tanggal</th>
+                <th style="color: red;" scope="col">Delete</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="jadwal : ${jadwalList}">
+                <td th:text="${jadwal.jadwalId}"></td>
+                <td><a th:href="@{/admin/list_batch/{batchId}/peserta/jadwal/{jadwalId}(batchId=${batchId},jadwalId=${jadwal.jadwalId})}">Detail</a></td>
+                <td th:text="${jadwal.message}"></td>
+                <td th:text="${{jadwal.tanggal}}"></td>
+                <td><a th:href="@{/admin/list_batch/jadwal/delete/{jadwalId}(jadwalId=${jadwal.jadwalId})}">Hapus<br>Jadwal</a></td>
+              </tr>
+              </tbody>
+            </table>
+             </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Absensi</title>
+    <div th:replace="header :: cssHeader"></div>
+</head>
+<body>
+<header th:insert="header :: navbarHeader"></header>
+<form action="#" method="post" th:action="@{/admin/absensi/{jadwalId}/{kursus}(jadwalId=${jadwalId}, kursus=${kursus})}" th:object="${listPeserta}">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Nama</th>
+            <th scope="col">NPM</th>
+            <th scope="col">Kursus</th>
+            <th scope="col">Hadir</th>
+            <th scope="col">Tidak Hadir</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="absensi, iter : ${listPeserta.absensiJadwalList}">
+            <td th:text="${absensi.peserta.peserta.nama}"></td>
+            <td th:text="${absensi.peserta.peserta.npm}"></td>
+            <td th:text="${absensi.peserta.peserta.kursus}"></td>
+            <td>
+                <input type="hidden" th:name="|absensiJadwalList[${iter.index}].peserta.peserta.pesertaId|" th:value="${absensi.getPeserta().getPeserta().getPesertaId()}">
+<!--                <select th:name="|absensiJadwalList[${iter.index}].statusHadir|">-->
+<!--                    <option th:value="true" th:selected="${absensi.getStatusHadir() == true}">Hadir</option>-->
+<!--                    <option th:value="false" th:selected="${absensi.getStatusHadir() == false}">Tidak Hadir</option>-->
+<!--                    <option th:value="null" th:selected="${absensi.getStatusHadir() == null}">&#45;&#45;&#45;&#45;</option>-->
+<!--                </select>-->
+                <input type="radio" th:name="|absensiJadwalList[${iter.index}].statusHadir|" th:value="true" th:checked="${absensi.getStatusHadir() == true}">
+            </td>
+            <td>
+                <input type="radio" th:name="|absensiJadwalList[${iter.index}].statusHadir|" th:value="false" th:checked="${absensi.getStatusHadir() == false}">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary btn-sm">Simpan Absensi</button>
+</form>
+</body>
+</html>
